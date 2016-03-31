@@ -615,9 +615,9 @@ class SDGoogleCalendar_Custom_Route extends WP_REST_Controller {
 			$i++;
 		}
 		
-		$output .= "{";
+		$output .= "{[";
 		foreach($days as $day){
-			$output .= "'date':'".date_format($day->date, "Y-m-d")."',";
+			$output .= "{'date':'".date_format($day->date, "Y-m-d")."',";
 			$output .= "'events':[";
 			foreach($day->events as $evt){
 				$output .= "{";
@@ -627,9 +627,11 @@ class SDGoogleCalendar_Custom_Route extends WP_REST_Controller {
 				$output .= "'link':'".$evt->link."'";
 				$output .= "},";
 			}
-			$output .= "]";
+			$output = rtrim($output, ",");
+			$output .= "]},";
 		}
-		$output .= "}";
+		$output = rtrim($output, ",");
+		$output .= "]}";
 	  }
 	  return isset($output) ? $output : "";
 	}

@@ -49,48 +49,6 @@ foreach($html->find('div.date-section') as $element){
 }
 //print_r($days);
 
-
-date_default_timezone_set($timezone);
-$currentDate = new DateTime(date('Ymd'));
-$futureDate = date_add($currentDate, new DateInterval('P10D'));
-echo date('Ymd')." - ".$futureDate->format('Ymd');
-
 //array of { [events] -> array( time, title, link ), date -> (date, timezone_type, timezone) } 
-
-/**
-
-Array
-(
-    [0] => stdClass Object
-        (
-            [events] => Array
-                (
-                    [0] => stdClass Object
-                        (
-                            [time] => 10:15am
-                            [title] => Toddler Class
-                            [link] => https://calendar.google.com/calendar/
-                        )
-
-                    [1] => stdClass Object
-                        (
-                            [time] => 11am
-                            [title] => Preschool Class
-                            [link] => https://calendar.google.com/calendar/
-                        )
-
-                )
-
-            [date] => DateTime Object
-                (
-                    [date] => 2016-03-28 20:56:08
-                    [timezone_type] => 2
-                    [timezone] => EST
-                )
-
-        )
-)
-**/
-
 
 ?>
