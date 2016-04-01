@@ -20,3 +20,8 @@ The RESTful call generates JSON that looks like the following as an example:
 
 The RESTful call can be made by using a custom url to:
 <your base wordpress site url>/wp-json/sd-google-calendar/v1/sdcalendar/<post ID>
+
+The agenda calendar can be inserted to your wordpress post using the shortcode:
+[sd_show_calendar id="<cal id>"]
+
+There's also a "type" parameter which is defaulted to "agenda" for now but will be further developed to eventually use full calendar displays for scrolling different months.
