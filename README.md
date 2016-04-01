@@ -17,3 +17,6 @@ The RESTful call generates JSON that looks like the following as an example:
     'link':'https://calendar.google.com/calendar/event?eid=aWwy...&ctz=America/New_York'}
   ]
 }
+
+The RESTful call can be made by using a custom url to:
+<your base wordpress site url>/wp-json/sd-google-calendar/v1/sdcalendar/<post ID>
