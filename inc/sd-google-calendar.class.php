@@ -405,6 +405,7 @@ echo '			<script>
 				$output .= "<br/></li>";
 			}
 			$output .= "</ul>";
+			// $output .= "<div class='sd-show-all'><a class='sd-show-all-link' href='".$calendarurl."'>Show All</a></div>";
 			return $output;
 		}
 		return "";
