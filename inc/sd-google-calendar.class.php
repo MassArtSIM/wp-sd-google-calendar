@@ -388,12 +388,19 @@ echo '			<script>
 				$output .= "<li>";
 				$output .= "<span class='sd-date-text'>".date_format(date_create_from_format('D M d, Y T',$element->find('div.date',0)->innertext . ' EST'), "Y-m-d")."</span><br/>";
 				foreach($element->find('tr.event') as $event){
-				   $output .= "<ul class='sd-date-events'>";
-				   $output .= "<li><span class='sd-date-event-time'>".$event->find('td.event-time',0)->innertext."</span>";
-				   $output .= "<a class='sd-date-event-link' href='https://calendar.google.com/calendar/".$event->find('a.event-link',0)->href."'>";
-				   $output .= "<span class='sd-date-event-title'>".$event->find('span.event-summary',0)->innertext."</span>";
-				   $output .= "</a></li>";
-				   $output .= "</ul>";
+					$output .= "<ul class='sd-date-events'>";
+					$output .= "<li>";
+					$time = $event->find('td.event-time',0)->innertext;
+					if (preg_match('/^[0-9\:apm]+$/', $time)) {
+						$output .= "<span class='sd-date-event-time'>".$event->find('td.event-time',0)->innertext."</span>";
+					}
+					else {
+						$output .= "<span class='sd-date-event-time sd-date-event-time-all-day'>all day</span>";
+					}
+					$output .= "<a class='sd-date-event-link' href='https://calendar.google.com/calendar/".$event->find(' a.event-link',0)->href."'>";
+					$output .= "<span class='sd-date-event-title'>".$event->find('span.event-summary',0)->innertext."</ span>";
+					$output .= "</a></li>";
+					$output .= "</ul>";
 				}
 				$output .= "<br/></li>";
 			}
