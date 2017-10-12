@@ -10,8 +10,7 @@ Version: 1.0
 define( 'SDGC_VERSION', '1.0' );
 define( 'SDGC_INC_PATH', dirname( __FILE__ ) . '/inc' );
 define( 'SDGC_PATH', dirname( __FILE__ ) );
-// define( 'SDGC_FOLDER', basename(SDGC_PATH) );
-define( 'SDGC_FOLDER', 'sd-google-calendar-combiner' );
+define( 'SDGC_FOLDER', basename(SDGC_PATH) );
 define( 'SDGC_URL', plugins_url() . '/'. SDGC_FOLDER ); 
 define( 'TEXTDOMAIN', 'sd-google-calendar' );
 
