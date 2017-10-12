@@ -14,3 +14,7 @@ span.sd-date-event-time:after{
 span.sd-date-event-title{
   font-weight:bold;
 }
+div.sd-show-more{
+  font-weight:bold;
+  text-align:center;
+}

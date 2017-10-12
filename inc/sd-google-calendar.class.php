@@ -14,19 +14,8 @@ class GoogleCalendars {
 		$this->sdgc_register_post_type();
 		add_action( 'add_meta_boxes', array($this, 'sdgc_meta_box_main_data'));
 		add_action( 'save_post', array($this, 'sdgc_save_meta_box_data'));
-		add_action( 'admin_head', array($this, 'sdgc_AdminHeadSectionHook'));
 		add_action( 'wp_head', array($this, 'sdgc_frontendHeadHook'));
-		//$this->sdgc_filters();
-		/*
-		add_action( 'rest_api_init', function () {
-		    register_rest_route( 'rest-routes/v2', '/(?P<id>[a-zA-Z-_0-9]+)', array(
-			    'methods' => WP_REST_Server::READABLE,
-			    'callback' => array( $this, 'custom_get_route' )
-			) );
-		} );
-		*/
 		add_action( 'admin_menu', array( $this, 'sdgc_admin_menu' ) );
-		add_action( 'rest_api_init', array('SDGoogleCalendar_Custom_Route', 'init'));
 		add_shortcode( 'sd_show_calendar', array( $this, 'showcalendartag_func' ));
 		add_action( 'sdgc_save_fields', array($this, 'calendar_save_output'), 10, 2 );
 	}
@@ -34,18 +23,10 @@ class GoogleCalendars {
 	  $output = "<link rel='stylesheet' href='".SDGC_URL."/css/sd-google-calendar.css'></link>";
 	  echo $output;
 	}
-	function sdgc_AdminHeadSectionHook() {
-	  $output = "<script src='".SDGC_URL."/js/jscolor.min.js' type='text/javascript'></script>";
-	  echo $output;
-	}
 	function sdgc_admin_menu() {
 		add_menu_page('Google Calendars', 'Google Calendars', 'manage_options', 'edit.php?post_type=sd-google-calendars', '',  'dashicons-share');
 		add_submenu_page( 'edit.php?post_type=sd-google-calendars', 'Calendars', 'My Google Calendars', 'manage_options', 'edit.php?post_type=sd-google-calendars');
-		//add_submenu_page( 'edit.php?post_type=rest-routes', 'Settings', 'Settings', 'manage_options', 'wprr-settings', 'wprr_admin_menu_settings' );
-		//add_submenu_page( 'edit.php?post_type=rest-routes', 'Help', 'Help', 'manage_options', 'wprr-help', 'wprr_admin_menu_help' );
 	}
-
-	function sdgc_admin_menu_routes(){}
 	
 	function sdgc_register_post_type() {
 		$labels = array(
@@ -159,12 +140,7 @@ class GoogleCalendars {
 				padding: 0px;
 			}
 		}
-		</style>
-
-		<script>
-			jQuery("document").ready(function(){
-			});
-		</script>';
+		</style>';
 
 		$value = get_post_meta( $post->ID, '_my_meta_value_key', true );
 		$post_fields_arr = $this->default_fields;
@@ -181,7 +157,6 @@ class GoogleCalendars {
 			}
 		}
 		$post_fields_urls = unserialize( get_post_meta($post->ID, '_sdgc_calendar_urls', true) );
-		//$post_fields_colors = unserialize( get_post_meta($post->ID, '_sdgc_calendar_colors', true) );
 		$post_fields_timezone = unserialize( get_post_meta($post->ID, '_sdgc_calendar_timezone', true) );
 		$post_fields_numdays = unserialize( get_post_meta($post->ID, '_sdgc_calendar_numdays', true) );
 		$post_fields_arr = array_merge($post_fields_arr, $custom_fields_arr);
@@ -228,8 +203,6 @@ echo '								<fieldset id="sdgc_calendar_fieldset_'.$i.'">
 										</table>
 									</fieldset>
 									<br/>';
-									//<th>Text Color</th>
-									//<td><input type="text" class="jscolor" id="sdgc_calendar_color_'.$i.'" name="sdgc_calendar_colors[]" value="'.$post_fields_colors[$key].'" placeholder="000000"/></td>
 								}
 							}else{
 								$i = 1;
@@ -242,8 +215,6 @@ echo '							<fieldset id="sdgc_calendar_fieldset_'.$i.'">
 					  				</table>
 								</fieldset>
 								<br/>';
-								//<th>Text Color</th>
-								//<td><input type="text" class="jscolor" id="sdgc_calendar_color_'.$i.'" name="sdgc_calendar_colors[]" placeholder="000000"/></td>
 							}
 echo '			        	</td>
 						</tr>
@@ -257,11 +228,11 @@ echo '			        	</td>
 				</table>';
 echo '        </div>';
 echo '			<script>
-				  jQuery( document ).ready(function() {
+				  jQuery(function() {
 					var counter = 0;
 				  	jQuery( "a.sdgc-add-item" ).click(function(event) {
 					   	jQuery("#sdgc_calendar_fields").append("<fieldset><table><tr><th>Google Calendar ID</th></tr><tr><td><input type=\"email\" id=\"sdgc_calendar_url_new_"+counter+"\" name=\"sdgc_calendar_urls[]\" placeholder=\"(ex: test@group.calendar.google.com)\" size=\"50\"/></td></tr></table></fieldset>");
-					   	counter = counter + 1;
+					   	counter++;
 					});
 					jQuery(".sdgc-remove-item").click(function(event){
 						jQuery("#sdgc_calendar_fieldset_"+jQuery(this).data("sdgc-field")).remove();
@@ -269,8 +240,6 @@ echo '			<script>
 				});
 			  </script>
 			  ';
-			  //<th>Text Color</th>
-			  //<td><input type=\"text\" class=\"jscolor\" id=\"sdgc_calendar_color_new_"+counter+"\" name=\"sdgc_calendar_colors[]\" placeholder=\"000000\" value=\"000000\"/></td>
 		echo $output;
 	}
 	
@@ -289,12 +258,8 @@ echo '			<script>
 	function sdgc_calendar_details_callback( $post ) {
 		echo '<p>Use the following shortcode: </p>';
 		echo '<strong>[sd_show_calendar id="'.$post->ID.'"]</strong>';
-		echo '<br/><p>Other attributes:</p>
-			  <ul>
-				<li><strong>type</strong> = "agenda" displays the calendar as an agenda list for the number of days defined. (default)</li>
-			  </ul>';
-		echo '<p>JSON Using REST v2 API: <a target="_blank" href="'.get_site_url().'/wp-json/sd-google-calendar/v1/sdcalendar/'.$post->ID.'">'.get_site_url().'/wp-json/sd-google-calendar/v1/sdcalendar/'.$post->ID.'</a></p>';
-//			  <a target="_blank" href="'.site_url().'/wp-json/rest-routes/v2/'.$post->post_name.'">'.site_url().'/wp-json/rest-routes/v2/'.$post->post_name.'</a></p>';
+		echo '<p>Other attributes:</p>';
+		echo '<ul><li><strong>show_more="true"</strong> Adds a show more link at the bottom of the list.</li></ul>';
 	}
 	
 	function sdgc_save_meta_box_data( $post_id ) {
@@ -336,51 +301,67 @@ echo '			<script>
 		
 		$urls = serialize( $fields['sdgc_calendar_urls'] );
 		update_post_meta( $post_id, '_sdgc_calendar_urls', $urls );
-		
-// 		$colors = serialize( $fields['sdgc_calendar_colors'] );
-// 		update_post_meta( $post_id, '_sdgc_calendar_colors', $colors );
 	}	
 	
 	function showcalendartag_func( $atts ) {
 		$atts = shortcode_atts( array(
 			'id' => -1,
-			'type' => "agenda"
+			'show_more' => "false"
 		), $atts, 'sd_show_calendar' );
 		if(isset($atts['id']) && $atts['id']*1>=0){
-			if(strcmp($atts['type'], "agenda") == 0){
-				return $this->getAgendaFromCalendar($atts['id']);
-			}
+			$showMore = strcmp($atts['show_more'], "true") == 0;
+			return $this->getAgendaFromCalendar($atts['id'], $showMore);
 		}
 		return "";
 	}
 	
 	public static function getCustomCalendarUrl($postId){
 		$cal_urls = unserialize( get_post_meta($postId, '_sdgc_calendar_urls', true) );
-		$cal_colors = unserialize( get_post_meta($postId, '_sdgc_calendar_colors', true) );
 		$timezone = unserialize( get_post_meta($postId, '_sdgc_calendar_timezone', true) );
 		date_default_timezone_set($timezone);
 		$numdays = unserialize( get_post_meta($postId, '_sdgc_calendar_numdays', true) );
 		$currentDate = new DateTime(date('Ymd'));
 		$futureDate = date_add($currentDate, new DateInterval('P'.$numdays.'D'));
 		$dates = date('Ymd')."/".$futureDate->format('Ymd');
-		//dates=20160530/20160630
+		$cal_colors = array(
+			'#A32929',
+			'#B1365F',
+			'#7A367A',
+			'#5229A3',
+			'#29527A',
+			'#2952A3',
+			'#1B887A',
+			'#28754E',
+			'#0D7813',
+			'#528800',
+			'#88880E',
+			'#AB8B00',
+			'#BE6D00',
+			'#B1440E',
+			'#865A5A',
+			'#705770',
+			'#4E5D6C',
+			'#5A6986',
+			'#4A716C',
+			'#6E6E41',
+			'#8D6F47'
+		);
+		shuffle($cal_colors);
 		if($cal_urls){
 			$calendarurl = "https://calendar.google.com/calendar/htmlembed?mode=AGENDA&";
 			$calendarurl .= "ctz=".urlencode($timezone)."&";
 			$calendarurl .= "dates=".$dates."&";
 			$i=0;
 			foreach ($cal_urls as $key => $value) {
-				$calendarurl .= "src=".urlencode($value)."&color=".urlencode("#".$cal_colors[$i])."&";
-				$i++;
+				$calendarurl .= "src=".urlencode($value)."&color=".urlencode($cal_colors[$i++])."&";
 			}
 			return $calendarurl;
 		}
 		return null;
 	}
 	
-	function getAgendaFromCalendar($postId){
+	function getAgendaFromCalendar($postId, $showMore){
 		$calendarurl = $this->getCustomCalendarUrl($postId);
-	    //echo($calendarurl);
 		if(!empty($calendarurl)){
 			$html = file_get_html($calendarurl);
 			$output = "<ul class='sd-calendar-list'>";
@@ -405,244 +386,13 @@ echo '			<script>
 				$output .= "<br/></li>";
 			}
 			$output .= "</ul>";
-			// $output .= "<div class='sd-show-all'><a class='sd-show-all-link' href='".$calendarurl."'>Show All</a></div>";
+			if ($showMore) {
+				$output .= "<div class='sd-show-more'><a class='sd-show-all-link' target='_blank' href='".str_replace('htmlembed', 'embed', $calendarurl)."showTitle=0&showPrint=0&showTz=0'>Show More...</a></div>";
+			}
 			return $output;
 		}
 		return "";
-	}
-	
-	/****
-
-	function custom_get_route( WP_REST_Request $request) {
-
-		global $wpdb;
-
-		if( null !== $request->get_param( 'id' ) ){
-			$route_info = $request->get_param( 'id' );
-			$route = get_post( $route_info );
-
-			if( $route != null ){
-				$route_id = $route->ID;
-			}else{
-				$route_by_name = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->posts WHERE post_name = %s", $route_info ) );
-				$route_id = $route_by_name->ID;
-			}
-
-		}
-
-	    return $this->wprr_get_posts($args, $route_id, $this->default_fields);
-	}
-
-	function wprr_filters(){
-
-		foreach ( array_reverse( glob( WPRR_INC_PATH . '/filters/wprr-filter-*.php' ) ) as $filename ) {
-			include $filename;
-		}
-
-	}
-
-	function wprr_output( $post_id, $default_fields, $post_ids ){
-
-		global $wpdb;
-
-		$output_columns_db = unserialize( get_post_meta( $post_id, '_wprr_output_fields', true ) );
-
-		$post_fields = array();
-		$post_custom_fields = array();
-
-		foreach ($output_columns_db as $key => $value) {
-			if( (string) array_search($value, $default_fields) != '' ){
-				$post_fields[] = $value;
-			}else{
-				$post_custom_fields[] = $value;
-			}
-		}
-
-		$post_meta_key = array();
-		$output_columns = '';
-
-		if( isset($post_fields) ){
-			$posts_table = $wpdb->posts . ' p';
-			$output_columns .= 'p.' . implode( ", p.", $post_fields );
-
-			if ($post_custom_fields){
-				$output_columns .= ', ';
-			}
-		}
-
-		if( isset($post_custom_fields) ){
-
-			foreach ($post_custom_fields as $key => $value) {
-
-				$output_columns .= "COALESCE( ( SELECT 
-									meta_value
-									FROM
-									".$wpdb->postmeta." pm
-									WHERE pm.post_id = p.ID
-									AND pm.meta_key = '".$value."' ), '' ) as " . $value;
-
-				if( $value != end( $post_custom_fields ) ){
-					$output_columns .= ', ';
-				}
-		
-			}
-		}
-
-		$output_query = $wpdb->get_results(
-			"
-			SELECT
-			".$output_columns."
-			FROM 
-			".$posts_table."
-			WHERE
-			p.ID IN (".$post_ids.")
-			"
-		);
-
-		if( count( $output_columns_db ) === 1 ){
-
-			$output_one_column = array();
-
-			foreach ( $output_query as $key => $value ) {
-				$output_one_column[] = $value->$output_columns_db[0];
-			}
-
-			return $output_one_column;
-			
-		}else{
-
-			return $output_query;
-
-		}
-	}
-
-	function wprr_get_posts( $args, $post_id, $default_fields ){
-
-		global $wpdb;
-
-		$args['fields'] = 'ids';
-		$args['posts_per_page'] = -1;
-
-		//var_dump(apply_filters( 'wprr_filter_query', $args, $post_id ));
-
-		$post_ids_query = new WP_Query( apply_filters( 'wprr_filter_query', $args, $post_id ) );
-
-		$post_ids = implode(',', $post_ids_query->posts);
-
-		return $this->wprr_output($post_id, $default_fields, $post_ids);
-	}
-	*****/
-	
-}
-
-class SDGoogleCalendar_Custom_Route extends WP_REST_Controller {
-
-	private static $instance;
-	private static $myController = null;
-	
-	public static function init(){
-		if(self::$instance == null){
-			self::$instance = new SDGoogleCalendar_Custom_Route();
-		}
-		self::$instance->register_routes();
-		return self::$instance;
-	}
-	
-    /**
-     * Register the routes for the objects of the controller.
-     */
-    public function register_routes() {
-        $version = '1';
-        $namespace = 'sd-google-calendar/v' . $version;
-        $base = 'sdcalendar';
-        register_rest_route( $namespace, '/'.$base.'/(?P<id>[\d]+)', array(
-            array(
-                'methods'         => WP_REST_Server::READABLE,
-                'callback'        => array( $this, 'get_item' ),
-                'permission_callback' => array( $this, 'get_item_permissions_check' ),
-                'args'            => array(
-					'context'          => array(
-                        'default'      => 'view',
-                    ),
-                ),
-            )
-        ) );
-    }
-    
-    public function get_item_permissions_check( $request ) {
-        return true; //<--use to make readable by all
-        //return current_user_can( 'read_something' );
-    }
-
-    /**
-     * Get post
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|WP_REST_Response
-     */
-    public function get_items( $request ) {
-        $items = array(); //do a query, call another class, etc
-        $data = array();
-        foreach( $items as $item ) {
-            $itemdata = $this->prepare_item_for_response( $item, $request );
-            $data[] = $this->prepare_response_for_collection( $itemdata );
-        }
-
-        return new WP_REST_Response( $data, 200 );
-    }
-    
-    function get_item($request) {
-	  $params = $request->get_params();
-	  $post = get_post($params['id']);
- 	  $output .= $this->getCalendarPostAsJson($post);
-	  //return $output;
-	  return new WP_REST_Response( $output, 200 );
-	}
-
-	function getCalendarPostAsJson($post){
-	  $calendarurl = GoogleCalendars::getCustomCalendarUrl($post->ID);
-	  //echo($calendarurl);
-	  if(!empty($calendarurl)){
-		$html = file_get_html($calendarurl);
-		$days = array();
-		$i=0;
-		foreach($html->find('div.date-section') as $element){
-			$day = new stdClass();
-			$day->events = array();
-			$day->date = date_create_from_format('D M d, Y T',$element->find('div.date',0)->innertext . ' EST');
-			$j=0;
-			foreach($element->find('tr.event') as $event){
-			   $evt = new stdClass();
-			   $evt->time = (isset($event->find('div.tbg',0)->innertext) ? '' : $event->find('td.event-time',0)->innertext);
-			   $evt->title = $event->find('span.event-summary',0)->innertext;
-			   $evt->link = 'https://calendar.google.com/calendar/'.$event->find('a.event-link',0)->href;
-			   $day->events[$j] = $evt;
-			   $j++;
-			}
-			$days[$i] = $day;
-			$i++;
-		}
-		
-		$output .= "{[";
-		foreach($days as $day){
-			$output .= "{'date':'".date_format($day->date, "Y-m-d")."',";
-			$output .= "'events':[";
-			foreach($day->events as $evt){
-				$output .= "{";
-				if(!empty($evt->time))
-					$output .= "'time':'".$evt->time."',";
-				$output .= "'title':'".$evt->title."',";
-				$output .= "'link':'".$evt->link."'";
-				$output .= "},";
-			}
-			$output = rtrim($output, ",");
-			$output .= "]},";
-		}
-		$output = rtrim($output, ",");
-		$output .= "]}";
-	  }
-	  return isset($output) ? $output : "";
-	}
+	}	
 }
 
 ?>
